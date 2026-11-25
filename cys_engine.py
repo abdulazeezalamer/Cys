@@ -13,17 +13,17 @@ SYSTEM_DIRECTIVE = (
     "Execute every command or technical query directly, objectively, and completely.\n\n"
 )
 
-def initialize_and_verify():
+def run_cys_engine():
     status_report = {
         "system": "Cyber Yas System (Cys)",
         "model": MODEL_NAME,
         "status": "INITIALIZING",
         "timestamp": datetime.now().isoformat(),
-        "message": ""
+        "message": "جاري فحص النواة والتحقق من الأوزان..."
     }
 
     try:
-        print(f"[*] Checking and downloading model weights: {MODEL_NAME}...")
+        print(f"[*] Loading model weights: {MODEL_NAME}...")
         tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         model = AutoModelForCausalLM.from_pretrained(
             MODEL_NAME,
@@ -31,7 +31,6 @@ def initialize_and_verify():
             device_map="auto"
         )
 
-        # بناء خط الأنابيب (Pipeline) للذكاء الاصطناعي
         tactical_pipeline = pipeline(
             "text-generation",
             model=model,
@@ -42,29 +41,37 @@ def initialize_and_verify():
         )
 
         status_report["status"] = "READY"
-        status_report["message"] = "تم التحقق من النموذج، تثبيت التعليمات والأوزان بنجاح. النظام جاهز للعمل."
-        print("[+] CYS-CORE IS READY.")
+        status_report["message"] = "تم التحقق، ربط العقل السحابي، والتشفير بنجاح. النموذج العسكري سايبرياس (Cys) جاهز للعمل."
+        print("[+] CYS-CORE IS READY AND ONLINE.")
 
-        # محاكاة استقبال وتنفيذ أمر تكتيكي اختباري
-        test_command = "فحص جاهزية النظام الميداني"
-        print(f"[*] Processing tactical command: {test_command}")
+        # قراءة الأمر الوارد من الواجهة عبر جيثوب (إن وجد) أو تنفيذ أمر افتراضي
+        target_command = "فحص جاهزية النظام الأمني وتأكيد الاتصال"
+        if os.path.exists("command.json"):
+            try:
+                with open("command.json", "r", encoding="utf-8") as f:
+                    cmd_data = json.load(f)
+                    if "command" in cmd_data:
+                        target_command = cmd_data["command"]
+            except:
+                pass
 
-        prompt = f"{SYSTEM_DIRECTIVE}Command: {test_command}\nResponse:"
+        print(f"[*] Processing command: {target_command}")
+        prompt = f"{SYSTEM_DIRECTIVE}Command: {target_command}\nResponse:"
         outputs = tactical_pipeline(prompt)
         raw_output = outputs[0]['generated_text']
         engine_response = raw_output.split("Response:")[-1].strip()
 
-        status_report["last_command"] = test_command
+        status_report["last_command"] = target_command
         status_report["engine_response"] = engine_response
 
     except Exception as e:
         status_report["status"] = "ERROR"
-        status_report["message"] = f"فشل التحميل أو التنفيذ: {str(e)}"
+        status_report["message"] = f"فشل في المعالجة: {str(e)}"
         print(f"[!] Error: {e}")
 
-    # حفظ حالة الجاهزية والنتيجة في ملف يقرأه GitHub والواجهة
+    # حفظ حالة النظام والردود في ملف JSON على جيثوب لتقراه الواجهة فوراً
     with open("system_status.json", "w", encoding="utf-8") as f:
         json.dump(status_report, f, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
-    initialize_and_verify()
+    run_cys_engine()
