@@ -21,12 +21,25 @@ jobs:
         run: |
           pip install kaggle
 
-      - name: Authenticate Kaggle
+      - name: Authenticate Kaggle & Run Engine
         run: |
           mkdir -p ~/.kaggle
-          echo '{"username":"dummy","key":"${{ secrets.KAGGLE_KEY }}"}' > ~/.kaggle/kaggle.json
+          echo '{"username":"abdulazeezalamer","key":"${{ secrets.KAGGLE_KEY }}"}' > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
 
-      - name: Test Kaggle Connection
+          # رفع الكود وتحديث وتشغيل النوت بوك على كاجل مع كرت الشاشة
+          kaggle kernels push -p .
+
+          # انتظار قصير حتى تبدأ المهمة على كاجل
+          sleep 15
+
+          # محاولة سحب ملف الحالة والنتائج (system_status.json) إن وجد
+          kaggle kernels pull abdulazeezalamer/cys-tactical-core -p . --metadata || true
+
+      - name: Commit and Push Results Back to GitHub
         run: |
-          kaggle competitions list || echo "Connected successfully with API token."
+          git config --global user.name "Cys-Bot"
+          git config --global user.email "bot@cys.system"
+          git add system_status.json || true
+          git commit -m "Auto-sync: Cys tactical engine execution report [skip ci]" || true
+          git push || true
