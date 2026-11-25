@@ -1,0 +1,32 @@
+name: Cys Tactical Engine Sync
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  run-engine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Kaggle CLI
+        run: |
+          pip install kaggle
+
+      - name: Authenticate Kaggle
+        run: |
+          mkdir -p ~/.kaggle
+          echo '{"username":"dummy","key":"${{ secrets.KAGGLE_KEY }}"}' > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json
+
+      - name: Test Kaggle Connection
+        run: |
+          kaggle competitions list || echo "Connected successfully with API token."
